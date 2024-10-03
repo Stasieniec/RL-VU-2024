@@ -1,5 +1,14 @@
 import gymnasium as gym
 import numpy as np
+import pygame
+from gymnasium.envs.registration import register
+import time
+
+register(
+     id="gym_examples/mazeEnv-v0",
+     entry_point="gym_examples.envs:MazeEnv",
+     max_episode_steps=300,
+)
 
 class MazeEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
@@ -27,6 +36,7 @@ class MazeEnv(gym.Env):
         self.sub_goal_position = np.array([5, 3])
         self.end_goal_position = np.array([8, 7])
         self.agent_position = self.start_position.copy()
+
         self.reached_sub_goal = False
         self.reached_end_position = False
 
@@ -113,3 +123,106 @@ class MazeEnv(gym.Env):
             reward = 1  # Reward for completing both goals
 
         return self.agent_position, reward, done, {}
+    
+    def render(self):
+        if self.render_mode == "rgb_array":
+            return self._render_frame()
+        elif self.render_mode == "human":
+            self._render_frame()
+
+    def _render_frame(self):
+        # Initialize pygame window if it's not already created
+        if self.window is None and self.render_mode == "human":
+            pygame.init()
+            pygame.display.init()
+            self.window = pygame.display.set_mode(
+                (self.window_size, self.window_size)
+            )
+        if self.clock is None and self.render_mode == "human":
+            self.clock = pygame.time.Clock()
+
+        # Create a canvas of the window size to draw on
+        canvas = pygame.Surface((self.window_size, self.window_size))
+        canvas.fill((255, 255, 255))  # Set background to white
+        pix_square_size = self.window_size / self.size  # Size of each grid square
+
+        # Draw the maze grid (walls and open paths)
+        for row in range(self.size):
+            for col in range(self.size):
+                if self.maze[row, col] == 1:  # Wall
+                    color = (0, 0, 0)  # Black for walls
+                elif self.maze[row, col] == 0:  # Open path
+                    color = (255, 255, 255)  # White for open paths
+                elif self.maze[row, col] == 2:  # Start position
+                    color = (0, 255, 0)  # Green for start
+                elif self.maze[row, col] == 3:  # Sub-goal
+                    color = (255, 165, 0)  # Orange for sub-goal
+                elif self.maze[row, col] == 4:  # End goal
+                    color = (255, 0, 0)  # Red for end goal
+                
+                pygame.draw.rect(
+                    canvas,
+                    color,
+                    pygame.Rect(
+                        col * pix_square_size, row * pix_square_size, pix_square_size, pix_square_size
+                    ),
+                )
+
+        # Draw the agent
+        pygame.draw.circle(
+            canvas,
+            (0, 0, 255),  # Blue for the agent
+            (self.agent_position[1] * pix_square_size + pix_square_size / 2,
+            self.agent_position[0] * pix_square_size + pix_square_size / 2),
+            pix_square_size / 3
+        )
+
+        # Add gridlines for better visualization
+        for x in range(self.size + 1):
+            pygame.draw.line(
+                canvas,
+                (0, 0, 0),  # Black for gridlines
+                (0, pix_square_size * x),
+                (self.window_size, pix_square_size * x),
+                width=3,
+            )
+            pygame.draw.line(
+                canvas,
+                (0, 0, 0),  # Black for gridlines
+                (pix_square_size * x, 0),
+                (pix_square_size * x, self.window_size),
+                width=3,
+            )
+
+        if self.render_mode == "human":
+            # Copy the canvas to the visible window
+            self.window.blit(canvas, canvas.get_rect())
+            pygame.event.pump()
+            pygame.display.update()
+
+            # Ensure that rendering occurs at the set frame rate
+            self.clock.tick(self.metadata["render_fps"])
+        else:  # If rendering as an rgb array
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
+            )
+
+
+# Create the environment
+env = MazeEnv(render_mode="human")
+env.reset()
+
+# Run the environment for a few steps to visualize it
+done = False
+while not done:
+    action = env.action_space.sample()  # Take a random action
+    obs, reward, done, info = env.step(action)
+    env.render()  # Render the environment
+
+    time.sleep(0.2)  # Add a small delay to slow down the loop
+
+# Close the environment after the loop ends
+env.close()
+
+
+    
