@@ -31,10 +31,10 @@ class MazeEnv(gym.Env):
         self.reached_end_position = False
 
         # Observation space: agent's position
-        self.observation_space = spaces.Box(0, self.size - 1, shape=(2,), dtype=int)
+        self.observation_space = gym.spaces.Box(0, self.size - 1, shape=(2,), dtype=int)
 
         # Action space: 4 possible actions (right, up, left, down)
-        self.action_space = spaces.Discrete(4)
+        self.action_space = gym.spaces.Discrete(4)
 
         # Movement direction corresponding to each action
         self._action_to_direction = {
@@ -57,7 +57,11 @@ class MazeEnv(gym.Env):
         :param position: position of the agent
         
         :return valid: boolean value signifying wheter the position is valid
+
+        FUNCTION IS YET TO BE IMPLEMENTED
         """
+        # IMPLEMENT THIS FUNCTION BELOW
+        return True
         
         
     def reset(self):
@@ -76,32 +80,36 @@ class MazeEnv(gym.Env):
 
     def step(self, action):
         """
-        This function performs the step action of agent.
+        Perform the step action for the agent.
 
         :param action: action of the agent (up, down, left, right)
 
-        :return:
-
+        :return: observation (agent's position), reward, done, info dictionary
         """
+
+        # Take the action and calculate the new position
         direction = self._action_to_direction[action]
         new_position = self.agent_position + direction
 
-        valid_check = self.is_valid_position(new_position)
-        
-        if (valid_check == True):
+        # Initialize default values
+        reward = 0
+        done = False
+
+        # Check if the new position is valid
+        if self.is_valid_position(new_position):
             self.agent_position = new_position
-            
-        if (self.reached_sub_goal == False or self.reached_end_position == False):
-            if np.array_equal(self.agent_position, self.sub_goal_position):
-                self.reached_sub_goal = True
-            if np.array_equal(self.agent_position, self.end_goal_position):
-                self.reached_end_position = True
-                
-        if (self.reached_end_position == True and self.reached_sub_goal == True):
+
+        # Check if the agent has reached the sub-goal
+        if np.array_equal(self.agent_position, self.sub_goal_position):
+            self.reached_sub_goal = True
+
+        # Check if the agent has reached the end-goal
+        if np.array_equal(self.agent_position, self.end_goal_position):
+            self.reached_end_position = True
+
+        # If both sub-goal and end-goal are reached, the episode is done
+        if self.reached_sub_goal and self.reached_end_position:
             done = True
-            reward = 1
-            
-        # IMPLEMENT REWARD SYSTEM?
-        
-        
+            reward = 1  # Reward for completing both goals
+
         return self.agent_position, reward, done, {}
