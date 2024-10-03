@@ -40,7 +40,7 @@ class MazeEnv(gym.Env):
 
         self.reached_sub_goal = False
         self.reached_end_position = False
-
+        self.agent_path = []
         # Observation space: agent's position
         self.observation_space = gym.spaces.Box(0, self.size - 1, shape=(2,), dtype=int)
 
@@ -90,7 +90,7 @@ class MazeEnv(gym.Env):
         # reset all the flags to false 
         self.reached_sub_goal = False
         self.reached_end_position = False
-
+        self.agent_path = []
         # return the reset agent position
         return self.agent_position
 
@@ -133,7 +133,7 @@ class MazeEnv(gym.Env):
     def render(self):
         if self.render_mode == "human":
             self.window = init_window(self.window, self.window_size)
-            render_frame(self.window, self.window_size, self.maze, self.agent_position, self.sub_goal_position, self.end_goal_position)
+            render_frame(self.window, self.window_size, self.maze, self.agent_position, self.sub_goal_position, self.end_goal_position, self.agent_path)
 
     def close(self):
         close_window(self.window)

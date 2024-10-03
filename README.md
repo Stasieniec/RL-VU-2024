@@ -9,3 +9,12 @@ Group 23
     
 **Q** If we decide on writing a NN, can we use Keras?
 **A** Yeah there is no restrictions in terms of libraries.
+
+
+# TO-DO
+3. Implement Q-Learning - Wszyscy
+4. Maze Generator - Stanisław
+5. Second Algortihm - Wszyscy
+
+6. Visualization 
+7. Report

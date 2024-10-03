@@ -17,6 +17,7 @@
 import pygame
 import numpy as np
 
+agent_path = []
 
 def init_window(window, window_size):
     """Initialize the PyGame window."""
@@ -26,7 +27,7 @@ def init_window(window, window_size):
         window = pygame.display.set_mode((window_size, window_size))
     return window
 
-def render_frame(window, window_size, maze, agent_position, sub_goal_position, end_goal_position):
+def render_frame(window, window_size, maze, agent_position, sub_goal_position, end_goal_position, agent_path):
     """Render the environment on a PyGame window."""
     size = maze.shape[0]  # Assume the maze is a square
     pix_square_size = window_size / size  # The size of each grid square in pixels
@@ -53,6 +54,17 @@ def render_frame(window, window_size, maze, agent_position, sub_goal_position, e
                 color,
                 pygame.Rect(j * pix_square_size, i * pix_square_size, pix_square_size, pix_square_size)
             )
+    
+    # Draw the agent's path
+    if len(agent_path) > 1:
+        for i in range(len(agent_path) - 1):
+            start_pos = ((agent_path[i][1] + 0.5) * pix_square_size, (agent_path[i][0] + 0.5) * pix_square_size)
+            end_pos = ((agent_path[i + 1][1] + 0.5) * pix_square_size, (agent_path[i + 1][0] + 0.5) * pix_square_size)
+            pygame.draw.line(canvas, (255, 0, 0), start_pos, end_pos, width=5)  # Cyan for the path
+
+    # Add the current agent position to the path if it's not already there
+    if len(agent_path) == 0 or not np.array_equal(agent_position, agent_path[-1]):
+        agent_path.append(agent_position.copy())
 
     # Draw the agent
     pygame.draw.circle(
