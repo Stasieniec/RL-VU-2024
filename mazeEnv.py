@@ -140,20 +140,20 @@ class MazeEnv(gym.Env):
 
 
 # Create the environment
-env = MazeEnv(render_mode="human")
-env.reset()
-
-# Run the environment for a few steps to visualize it
-done = False
-while not done:
-    action = env.action_space.sample()  # Take a random action
-    obs, reward, done, info = env.step(action)
-    env.render()  # Render the environment
-
-    time.sleep(0.2)  # Add a small delay to slow down the loop
-
-# Close the environment after the loop ends
-env.close()
+# env = MazeEnv(render_mode="human")
+# env.reset()
+#
+# # Run the environment for a few steps to visualize it
+# done = False
+# while not done:
+#     action = env.action_space.sample()  # Take a random action
+#     obs, reward, done, info = env.step(action)
+#     env.render()  # Render the environment
+#
+#     time.sleep(0.2)  # Add a small delay to slow down the loop
+#
+# # Close the environment after the loop ends
+# env.close()
 
 
     
