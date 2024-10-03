@@ -71,7 +71,12 @@ class MazeEnv(gym.Env):
         FUNCTION IS YET TO BE IMPLEMENTED
         """
         # IMPLEMENT THIS FUNCTION BELOW
-        return True
+        x,y = position
+        
+        if (self.maze[x][y] == 1):
+            return False
+        else:
+            return True 
         
         
     def reset(self):
