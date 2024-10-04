@@ -124,10 +124,14 @@ class MazeEnv(gym.Env):
             self.reached_end_position = True
 
         # If both sub-goal and end-goal are reached, the episode is done
-        if self.reached_sub_goal and self.reached_end_position:
-            done = True
-            reward = 1  # Reward for completing both goals
+        if self.reached_sub_goal:
+            reward = 50
 
+        if self.reached_end_position:
+            done = True
+            reward = 100  # Reward for completing both goals
+
+        reward -= 0.05
         return self.agent_position, reward, done, {}
     
     def render(self):
