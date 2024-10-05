@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from mazeEnv import MazeEnv  # Assuming the environment is as you shared
+from mazeEnv import MazeEnv  
 
 
 class QLearningAgent:
