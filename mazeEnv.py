@@ -129,7 +129,7 @@ class MazeEnv(gym.Env):
 
         if self.reached_end_position:
             done = True
-            reward = 100  # Reward for completing both goals
+            reward = 100  
 
         #negative reward for each step
         reward -= 0.05
