@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import os
 from mazeEnv import MazeEnv
 
 
@@ -95,9 +96,9 @@ class QLearningAgent:
                 -self.decay_rate * (episode + 1))
 
             # Plot Q-table visualization every 20 episodes
-            if episode % 20 == 0:
+            if episode % 100 == 0:
                 print(f"Episode {episode}: Total Reward = {total_rewards}, Epsilon = {self.epsilon:.3f}")
-                self.plot_qtable_on_maze()
+                self.plot_qtable_on_maze(episode)
 
             # Check Q-table change
             qtable_diff = np.sum(np.abs(self.qtable - prev_qtable))
@@ -107,6 +108,7 @@ class QLearningAgent:
             # Early stopping if change is minimal
             if episode > 50 and qtable_diff < self.qtable_diff_threshold:
                 print(f"Early stopping at episode {episode} due to minimal Q-table changes.")
+                agent.plot_average_cumulative_rewards()
                 break
 
     def get_qtable(self):
@@ -121,9 +123,13 @@ class QLearningAgent:
         """Load the Q-table from a file."""
         self.qtable = np.load(filename)
 
-    def plot_qtable_on_maze(self):
+    def plot_qtable_on_maze(self, episode):
         """Visualize the Q-table arrows on the maze layout using quiver, focusing only on rotation."""
         nrows, ncols = self.env.maze.shape
+
+        folder = 'qtable_plots'
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
         fig, ax = plt.subplots(figsize=(8, 8))
 
@@ -172,10 +178,20 @@ class QLearningAgent:
         ax.quiver(X, Y, U, V, angles='xy', scale_units='xy', scale=1, color='blue')
 
         ax.set_title('Q-table Visualization on Maze (Best Action Direction)')
-        plt.show()
+        filename = os.path.join(folder, f'qtable_episode_{episode}.png')
+        plt.savefig(filename)
+
+        # Clear the figure to avoid overlapping with future plots
+        plt.clf()
 
     def plot_average_cumulative_rewards(self):
         """Plot the average cumulative rewards at the end of training."""
+
+        cumulative_folder = "cumulative_rewards_visualizations"
+        if not os.path.exists(cumulative_folder):
+            os.makedirs(cumulative_folder)
+
+
         cumulative_rewards = np.cumsum(self.rewards)
         average_cumulative_rewards = cumulative_rewards / (np.arange(1, len(self.rewards) + 1))
         plt.plot(average_cumulative_rewards)
@@ -183,7 +199,9 @@ class QLearningAgent:
         plt.xlabel('Episode')
         plt.ylabel('Average Cumulative Reward')
         plt.grid(True)
-        plt.show()
+
+        plt.savefig(f"{cumulative_folder}/cumulative_rewards_episode.png")
+        plt.close()
 
 
 # Testing / Running the code

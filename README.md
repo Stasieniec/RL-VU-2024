@@ -12,9 +12,10 @@ Group 23
 
 
 # TO-DO
-3. Implement Q-Learning - Wszyscy
-4. Maze Generator - Stanisław
-5. Second Algortihm - Wszyscy
+1. Implement Q-Learning - Wszyscy
+2. Environment Reward System
+3. Maze Generator - Stanisław
+4. Second Algortihm - Wszyscy
 
-6. Visualization 
-7. Report
+5. Visualization 
+6. Report
