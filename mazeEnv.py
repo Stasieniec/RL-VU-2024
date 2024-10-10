@@ -125,11 +125,12 @@ class MazeEnv(gym.Env):
 
         # If both sub-goal and end-goal are reached, the episode is done
         if self.reached_sub_goal:
+
             reward = 50
 
-        if self.reached_end_position:
+        if self.reached_end_position and self.reached_sub_goal:
             done = True
-            reward = 100  
+            reward = 100
 
         #negative reward for each step
         reward -= 0.05
