@@ -110,7 +110,7 @@ class MazeEnv(gym.Env):
         # Initialize default values
         reward = 0
         done = False
-        self.reached_sub_goal = False
+        flag = 0
 
         # Check if the new position is valid
         if self.is_valid_position(new_position):
@@ -126,10 +126,11 @@ class MazeEnv(gym.Env):
 
         # If both sub-goal and end-goal are reached, the episode is done
         if self.reached_sub_goal:
+            flag += 1
+            if flag == 1:
+                reward = 50
 
-            reward = 50
-
-        if self.reached_end_position and self.reached_sub_goal:
+        if self.reached_end_position and self.reached_end_position:
             done = True
             reward = 100
 

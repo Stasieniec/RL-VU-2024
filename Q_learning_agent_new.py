@@ -1,9 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from mazeEnv import MazeEnv
-
-
+from mazeEnv import MazeEnv  # Assuming the environment is as you shared
 
 
 class QLearningAgent:
@@ -36,7 +34,7 @@ class QLearningAgent:
     def compute_average_direction(self, q_values):
         """Compute the weighted average direction based on Q-values."""
         # Directions corresponding to each action (right, up, left, down)
-        directions = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+        directions = np.array([[1, 0], [0, -1], [-1, 0], [0, 1]])
 
         # Compute weighted direction based on Q-values
         total_q_value = np.sum(np.abs(q_values))
@@ -97,7 +95,7 @@ class QLearningAgent:
                 -self.decay_rate * (episode + 1))
 
             # Plot Q-table visualization every 20 episodes
-            if episode % 20 == 0:
+            if episode % 100 == 0:
                 print(f"Episode {episode}: Total Reward = {total_rewards}, Epsilon = {self.epsilon:.3f}")
                 self.plot_qtable_on_maze()
 
@@ -124,7 +122,7 @@ class QLearningAgent:
         self.qtable = np.load(filename)
 
     def plot_qtable_on_maze(self):
-        """Visualize the Q-table arrows on the maze layout, showing only the direction of the best action."""
+        """Visualize the Q-table arrows on the maze layout."""
         nrows, ncols = self.env.maze.shape
 
         fig, ax = plt.subplots(figsize=(8, 8))
@@ -132,18 +130,7 @@ class QLearningAgent:
         # Plot the maze layout: walls (1) will be displayed as black, paths (0) as white
         ax.imshow(self.env.maze, cmap='gray')
 
-        # Movement direction corresponding to each action
-        action_to_direction = {
-            0: np.array([0, 1]),  # Right
-            1: np.array([-1, 0]),  # Up
-            2: np.array([0, -1]),  # Left
-            3: np.array([1, 0]),  # Down
-        }
-
-        # Prepare lists for quiver arrows
-        X, Y, U, V = [], [], [], []
-
-        # Draw arrows representing the best action direction at each path location
+        # Draw arrows representing the best or average action direction at each path location
         for row in range(nrows):
             for col in range(ncols):
                 if self.env.maze[row, col] == 1:  # Skip walls
@@ -156,22 +143,14 @@ class QLearningAgent:
                 if np.all(q_values == 0):
                     continue
 
-                # Determine the best action (the one with the highest Q-value)
-                best_action = np.argmax(q_values)
+                # Compute the average direction based on Q-values
+                avg_direction = self.compute_average_direction(q_values)
 
-                # Get the corresponding direction for the best action
-                direction = action_to_direction[best_action]
+                if avg_direction is not None:
+                    ax.arrow(col, row, avg_direction[0] * 0.3, avg_direction[1] * 0.3,
+                             head_width=0.2, head_length=0.2, fc='blue', ec='blue')
 
-                # Store the arrow's starting point (col, row) and direction (direction)
-                X.append(col)
-                Y.append(row)
-                U.append(direction[1])  # x component (horizontal)
-                V.append(direction[0])  # y component (vertical)
-
-        # Plot arrows using quiver (no scaling for consistent arrow lengths)
-        ax.quiver(X, Y, U, V, angles='xy', scale_units='xy', scale=1, color='blue')
-
-        ax.set_title('Q-table Visualization on Maze (Best Action Direction)')
+        ax.set_title('Q-table Visualization on Maze (Best/Weighted Actions)')
         plt.show()
 
     def plot_average_cumulative_rewards(self):
@@ -198,13 +177,14 @@ if __name__ == "__main__":
     agent.train(total_episodes=1000, max_steps=100)
 
     # Save the learned Q-table
+
     # agent.save_qtable()
 
     # Print the final Q-table
     print("Final Q-table:")
     print(agent.get_qtable())
 
-    # Plot the final Q-table with correctly rotated arrows
+    # Plot the Q-table arrows on the maze layout
     agent.plot_qtable_on_maze()
 
     # Plot average cumulative rewards
