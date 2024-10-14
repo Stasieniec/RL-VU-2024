@@ -117,18 +117,19 @@ class MazeEnv(gym.Env):
             self.agent_position = new_position
 
         # Check if the agent has reached the sub-goal
-        if np.array_equal(self.agent_position, self.sub_goal_position) and self.reached_sub_goal == False:
+        if np.array_equal(self.agent_position, self.sub_goal_position) and not self.reached_sub_goal:
             self.reached_sub_goal = True
+            reward = 50
 
         # Check if the agent has reached the end-goal
         if np.array_equal(self.agent_position, self.end_goal_position):
             self.reached_end_position = True
 
         # If both sub-goal and end-goal are reached, the episode is done
-        if self.reached_sub_goal:
-            flag += 1
-            if flag == 1:
-                reward = 50
+        #if self.reached_sub_goal:
+            #flag += 1
+            #if flag == 1:
+                #reward = 50
 
         if self.reached_end_position and self.reached_end_position:
             done = True
