@@ -119,7 +119,7 @@ class MazeEnv(gym.Env):
         # Check if the agent has reached the sub-goal
         if np.array_equal(self.agent_position, self.sub_goal_position) and not self.reached_sub_goal:
             self.reached_sub_goal = True
-            reward = 50
+            reward = 20
 
         # Check if the agent has reached the end-goal
         if np.array_equal(self.agent_position, self.end_goal_position):
@@ -133,7 +133,7 @@ class MazeEnv(gym.Env):
 
         if self.reached_end_position and self.reached_end_position:
             done = True
-            reward = 100
+            reward = 50
 
         #negative reward for each step
         reward -= 0.05
