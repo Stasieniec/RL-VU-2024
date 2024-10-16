@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 
 def softmax(x):
     """Compute softmax values for each set of scores in x."""
-    e_x = np.exp((x - np.max(x))/0.3)  # subtract max for numerical stability
+    e_x = np.exp((x - np.max(x))/0.25)  # subtract max for numerical stability
     return e_x / e_x.sum(axis=0)
 
 class REINFORCEAgentOptimized:
-    def __init__(self, env, learning_rate=0.01, gamma=0.92, batch_size=10):
+    def __init__(self, env, learning_rate=0.01, gamma=0.96, batch_size=10):
         self.env = env
         self.gamma = gamma
         self.learning_rate = learning_rate  # Increased learning rate for faster updates
@@ -44,7 +44,7 @@ class REINFORCEAgentOptimized:
     
     def get_action(self, state_index, epsilon):
         # Gradually decrease epsilon for exploration
-        epsilon = max(0.1, epsilon * 0.75)  
+        epsilon = max(0.1, epsilon * 0.85)  
         if np.random.rand() < epsilon:
             action = self.env.action_space.sample()  # Exploration
         else:
@@ -83,7 +83,7 @@ class REINFORCEAgentOptimized:
 
                 # Reduce penalties to avoid over-restriction
                 if episode_visits[pos] > 1:
-                    reward -= 1  # Less penalty for revisits
+                    reward -= 1.2  # Less penalty for revisits
                 
 
                 # Store action and rewards
@@ -132,7 +132,7 @@ class REINFORCEAgentOptimized:
             # Every 'display_interval' episodes, output the heatmap
             if (episode + 1) % display_interval == 0:
                 self.display_heatmap(episode + 1)
-                self.episode_visit_counts = np.zeros(self.env.maze.shape)
+                #self.episode_visit_counts = np.zeros(self.env.maze.shape)
                 print(f"Episode {episode+1}: Total Reward = {cumulative_reward}")
                 # Log or print policy for a specific state
                 print(f"Policy for state [0, 0]: {self.policy[self.to_state_index((0, 0)), :]}")  # Example
