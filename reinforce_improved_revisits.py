@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 
 def softmax(x):
     """Compute softmax values for each set of scores in x."""
-    e_x = np.exp((x - np.max(x))/0.4)  # subtract max for numerical stability
+    e_x = np.exp((x - np.max(x))/0.3)  # subtract max for numerical stability
     return e_x / e_x.sum(axis=0)
 
 class REINFORCEAgentOptimized:
-    def __init__(self, env, learning_rate=0.04, gamma=0.9, batch_size=20):
+    def __init__(self, env, learning_rate=0.01, gamma=0.92, batch_size=10):
         self.env = env
         self.gamma = gamma
         self.learning_rate = learning_rate  # Increased learning rate for faster updates
@@ -44,7 +44,7 @@ class REINFORCEAgentOptimized:
     
     def get_action(self, state_index, epsilon):
         # Gradually decrease epsilon for exploration
-        epsilon = max(0.1, epsilon * 0.8)  
+        epsilon = max(0.1, epsilon * 0.75)  
         if np.random.rand() < epsilon:
             action = self.env.action_space.sample()  # Exploration
         else:
@@ -52,8 +52,8 @@ class REINFORCEAgentOptimized:
             action = np.random.choice(self.env.action_space.n, p=action_probabilities)
         return action
 
-    def train(self, total_episodes=2000, max_steps=100, display_interval=20, epsilon_decay=0.995):
-        epsilon = 1.0  
+    def train(self, total_episodes=2000, max_steps=100, display_interval=20, epsilon_decay=0.99):
+        epsilon = 1 
         accumulated_rewards = []
         accumulated_gradients = []
         best_reward = -float('inf')  # Track the best reward for adaptive epsilon decay
@@ -83,7 +83,7 @@ class REINFORCEAgentOptimized:
 
                 # Reduce penalties to avoid over-restriction
                 if episode_visits[pos] > 1:
-                    reward -= 0.5  # Less penalty for revisits
+                    reward -= 1  # Less penalty for revisits
                 
 
                 # Store action and rewards
@@ -94,6 +94,7 @@ class REINFORCEAgentOptimized:
                 state = new_state
                 
                 if done:
+                    reward += 10
                     break
 
             epsilon = max(0.1, epsilon * epsilon_decay)
@@ -135,6 +136,7 @@ class REINFORCEAgentOptimized:
                 print(f"Episode {episode+1}: Total Reward = {cumulative_reward}")
                 # Log or print policy for a specific state
                 print(f"Policy for state [0, 0]: {self.policy[self.to_state_index((0, 0)), :]}")  # Example
+                print(discounted_rewards)
 
     def update_policy_batch(self, accumulated_gradients):
         for states, actions, rewards in accumulated_gradients:
