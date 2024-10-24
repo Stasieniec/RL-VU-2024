@@ -56,7 +56,7 @@ class QLearningAgentModified:
         """
         return position[0] * self.env.maze.shape[1] + position[1]
     
-    def train(self, total_episodes=1000, max_steps=100, display_interval=20):
+    def train(self, total_episodes=2000, max_steps=100, display_interval=20):
         """
         Train the agent using Q-learning and output heatmaps every 'display_interval' episodes.
         
@@ -185,4 +185,4 @@ if __name__ == "__main__":
     agent = QLearningAgentModified(env)
 
     # Train the agent
-    agent.train(total_episodes=1000, max_steps=100)
+    agent.train(total_episodes=4000, max_steps=100)
