@@ -1,4 +1,10 @@
-# Here is the modified version of the Q-learning agent to track visited paths and output heatmaps every 20 episodes.
+
+#|--------------------------------------------------------------------|
+#|Before Running the code make sure you have installed the following: |
+#|   1. Numpy                                                         |
+#|   2. Matplotlip                                                    |
+#|   3. Gymnasium                                                     |
+#|--------------------------------------------------------------------|
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -7,6 +13,10 @@ from mazeEnv import MazeEnv
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+#---------------------------------------------------------------------------------------------------------------------------
+# MAIN Q-LEARNING ALGORITHM SECTION
 
 class QLearningAgentModified:
     def __init__(self, env, learning_rate=0.8, gamma=0.95, epsilon=1.0, max_epsilon=1.0, min_epsilon=0.01, decay_rate=0.001):
@@ -98,6 +108,7 @@ class QLearningAgentModified:
         plt.title(f'Heatmap of Visited Positions - Up to Episode {episode}')
         plt.show()
 
+#---------------------------------------------------------------------------------------------------------------------------
 # This class will now track the visits and display heatmaps every 20 episodes.
 # You can integrate this into your existing system and call the `train()` method.
 if __name__ == "__main__":

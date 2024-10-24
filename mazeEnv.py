@@ -4,7 +4,7 @@ import pygame
 from gymnasium.envs.registration import register
 from utils import init_window, render_frame, close_window
 import time
-
+# Registering the environment
 register(
      id="gym_examples/mazeEnv-v0",
      entry_point="gym_examples.envs:MazeEnv",
