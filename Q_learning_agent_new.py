@@ -3,6 +3,8 @@ import random
 import matplotlib.pyplot as plt
 import os
 from mazeEnv import MazeEnv
+from utils import display_heatmap, plot_average_cumulative_rewards, plot_learning_stability
+
 
 #---------------------------------------------------------------------------------------------------------------------------
 # MAIN Q-LEARNING ALGORITHM SECTION
@@ -13,13 +15,13 @@ class QLearningAgentModified:
         Initialization function for the Q-learning Algorithm
         
         Parameters.
-        env: The maze environment agent interacts with.
-        learning_rate: The rate at which the agent updates its Q-values.
-        gamma: Discount factor for future rewards.
-        epsilon: Initial probability for the epsilon-greedy strategy to explore.
-        max_epsilon: Maximum value for epsilon at the start of the training.
-        min_epsilon: Minimum value for epsilon.
-        decay_rate: Rate at which epsilon decays.
+        - env: The maze environment agent interacts with.
+        - learning_rate: The rate at which the agent updates its Q-values.
+        - gamma: Discount factor for future rewards.
+        - epsilon: Initial probability for the epsilon-greedy strategy to explore.
+        - max_epsilon: Maximum value for epsilon at the start of the training.
+        - min_epsilon: Minimum value for epsilon.
+        - decay_rate: Rate at which epsilon decays.
         """
         self.env = env
         self.state_size = env.maze.shape[0] * env.maze.shape[1]  # number of possible states in the maze
@@ -48,11 +50,11 @@ class QLearningAgentModified:
         """
         Helper function to convert 2D position to 1D state index.
         
-        Parameter.
-        position: current location of the agent in the maze.
+        Parameters:
+        - position: current location of the agent in the maze.
         
-        Return.
-        integer that represents the agent's position in the maze in 1D form.
+        Return:
+        - integer that represents the agent's position in the maze in 1D form.
         """
         return position[0] * self.env.maze.shape[1] + position[1]
     
@@ -60,10 +62,10 @@ class QLearningAgentModified:
         """
         Train the agent using Q-learning and output heatmaps every 'display_interval' episodes.
         
-        Parameters.
-        total_episodes: total number of episodes for which the agent will train
-        max_step: the maximum number of steps allowed per episode. After this limit, the episode ends even if the goal is not reached
-        display_interval: the interval at which heatmaps are displayed
+        Parameters:
+        - total_episodes: total number of episodes for which the agent will train
+        - max_step: the maximum number of steps allowed per episode. After this limit, the episode ends even if the goal is not reached
+        - display_interval: the interval at which heatmaps are displayed
 
         """
         prev_qtable = np.copy(self.qtable)
@@ -117,61 +119,13 @@ class QLearningAgentModified:
 
             # After every display_interval episodes, output the heatmap
             if (episode + 1) % display_interval == 0:
-                self.display_heatmap(episode + 1)
-
-                # Reset visit counts for the next batch of episodes
-                self.episode_visit_counts = np.zeros(self.env.maze.shape)
+                display_heatmap(episode + 1, self.episode_visit_counts, mode="Q")
+                self.episode_visit_counts = np.zeros(self.env.maze.shape)  # Reset visit counts
         
         # After training, plot cumulative rewards and learning stability
-        self.plot_average_cumulative_rewards()
-        self.plot_learning_stability()
+        plot_average_cumulative_rewards(self.rewards, mode="Q")
+        plot_learning_stability(self.rewards, mode="Q")
 
-    def display_heatmap(self, episode):
-        """Display a heatmap of the most visited paths."""
-        if not os.path.exists('Q-LearningVisualization'):
-            os.makedirs('Q-LearningVisualization')
-        
-        plt.figure(figsize=(8, 6))
-        plt.imshow(self.episode_visit_counts, cmap='hot', interpolation='nearest')
-        plt.colorbar(label='Visit Frequency')
-        plt.title(f'Heatmap of Visited Positions - Up to Episode {episode}')
-        plt.savefig(f"Q-LearningVisualization/heatmap_{episode}.png")
-        plt.close()
-
-    def plot_average_cumulative_rewards(self):
-        """Plot the average cumulative rewards over the episodes."""
-        cumulative_rewards = np.cumsum(self.rewards)  # Get cumulative sum of rewards
-        average_cumulative_rewards = cumulative_rewards / np.arange(1, len(self.rewards) + 1)
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(average_cumulative_rewards)
-        plt.xlabel("Episode")
-        plt.ylabel("Average Cumulative Reward")
-        plt.title("Average Cumulative Reward Over Time")
-        plt.grid(True)
-
-        if not os.path.exists('Q-LearningVisualization'):
-            os.makedirs('Q-LearningVisualization')
-
-        plt.savefig('Q-LearningVisualization/average_cumulative_rewards.png')
-        plt.close()
-
-    def plot_learning_stability(self, window_size=50):
-        """Plot a moving average of rewards to evaluate learning stability."""
-        moving_avg_rewards = np.convolve(self.rewards, np.ones(window_size) / window_size, mode='valid')
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(moving_avg_rewards)
-        plt.xlabel("Episode")
-        plt.ylabel(f"Moving Average Reward (window={window_size})")
-        plt.title("Learning Stability (Moving Average of Cumulative Rewards)")
-        plt.grid(True)
-
-        if not os.path.exists('Q-LearningVisualization'):
-            os.makedirs('Q-LearningVisualization')
-
-        plt.savefig('Q-LearningVisualization/learning_stability.png')
-        plt.close()
 
 # End of Main Q-Learning Algorithm
 #---------------------------------------------------------------------------------------------------------------------------

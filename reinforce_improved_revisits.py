@@ -1,26 +1,36 @@
 
-# Modified REINFORCE agent with heatmap visualization and proper gradient updates
 import numpy as np
 import random
-import matplotlib.pyplot as plt
-import os
 from mazeEnv import MazeEnv
+from utils import display_heatmap, plot_average_cumulative_rewards, plot_learning_stability
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Optimized REINFORCE agent with baseline, reward normalization, and batch processing
+#----------------------------------------------------------------------------------------------------------
+# MAIN REINFORCE ALGORITHM SECTION 
 
 def softmax(x):
-    """Compute softmax values for each set of scores in x."""
-    e_x = np.exp((x - np.max(x))/0.25)  # subtract max for numerical stability
+    """
+    Compute softmax values for each set of scores in x.
+
+    Parameters:
+    - x: set of scores.
+    
+    Return:
+     - e_x: set of softmax values.
+    """
+    e_x = np.exp((x - np.max(x))/0.25) 
     return e_x / e_x.sum(axis=0)
 
 class REINFORCEAgentOptimized:
     def __init__(self, env, learning_rate=0.01, gamma=0.96, batch_size=10):
+        """
+        Initialization Function 
+
+        Parameters:
+        - 
+        """
         self.env = env
         self.gamma = gamma
-        self.learning_rate = learning_rate  # Increased learning rate for faster updates
+        self.learning_rate = learning_rate 
         self.batch_size = batch_size  
         
         # Initialize policy: a table of action probabilities (softmax over actions)
@@ -31,6 +41,7 @@ class REINFORCEAgentOptimized:
         
         # Heatmap tracking variables
         self.episode_visit_counts = np.zeros(env.maze.shape) 
+        self.rewards = []  # Track cumulative rewards
 
     def to_state_index(self, position):
         """Helper function to convert 2D position to 1D state index."""
@@ -54,7 +65,6 @@ class REINFORCEAgentOptimized:
 
     def train(self, total_episodes=2000, max_steps=100, display_interval=20, epsilon_decay=0.99):
         epsilon = 1 
-        accumulated_rewards = []
         accumulated_gradients = []
         best_reward = -float('inf')  # Track the best reward for adaptive epsilon decay
 
@@ -85,7 +95,6 @@ class REINFORCEAgentOptimized:
                 if episode_visits[pos] > 1:
                     reward -= 1.2  # Less penalty for revisits
                 
-
                 # Store action and rewards
                 episode_actions.append(action)
                 episode_states.append(state_index)
@@ -107,13 +116,14 @@ class REINFORCEAgentOptimized:
                 discounted_rewards.insert(0, cumulative_reward)
 
             # Apply reward scaling
-                # Apply stronger reward scaling
             discounted_rewards = self.normalize_rewards(discounted_rewards) * 20  # Increase scaling factor to amplify reward effect
             self.baseline = 0.9 * self.baseline + 0.1 * np.mean(discounted_rewards)  # Faster baseline adaptation
             discounted_rewards = np.array(discounted_rewards) - self.baseline  
 
-            # Accumulate rewards and gradients
-            accumulated_rewards.extend(discounted_rewards)
+            # Track cumulative rewards for plotting
+            self.rewards.append(np.sum(rewards))
+
+            # Accumulate gradients for batch update
             accumulated_gradients.append((episode_states, episode_actions, discounted_rewards))
 
             # Track best reward for adaptive epsilon decay
@@ -131,29 +141,23 @@ class REINFORCEAgentOptimized:
 
             # Every 'display_interval' episodes, output the heatmap
             if (episode + 1) % display_interval == 0:
-                self.display_heatmap(episode + 1)
-                #self.episode_visit_counts = np.zeros(self.env.maze.shape)
-                print(f"Episode {episode+1}: Total Reward = {cumulative_reward}")
+                display_heatmap(episode + 1, self.episode_visit_counts, mode="R")  # Call display_heatmap from utils
+                print(f"Episode {episode+1}: Total Reward = {np.sum(rewards)}")
                 # Log or print policy for a specific state
                 print(f"Policy for state [0, 0]: {self.policy[self.to_state_index((0, 0)), :]}")  # Example
-                print(discounted_rewards)
+
+        # After training, plot average cumulative rewards and learning stability
+        plot_average_cumulative_rewards(self.rewards, mode="R")
+        plot_learning_stability(self.rewards, mode="R")
 
     def update_policy_batch(self, accumulated_gradients):
         for states, actions, rewards in accumulated_gradients:
             for state, action, reward in zip(states, actions, rewards):
                 grad = np.zeros(self.policy[state].shape)
                 grad[action] = 1
-                # Ensure the policy update correctly reflects the reward influence
                 grad -= self.policy[state]
                 self.policy[state] = self.policy[state] + self.learning_rate * reward * grad
                 self.policy[state] = softmax(self.policy[state])
-
-    def display_heatmap(self, episode):
-        plt.figure(figsize=(8, 6))
-        plt.imshow(self.episode_visit_counts, cmap='hot', interpolation='nearest')
-        plt.colorbar(label='Visit Frequency')
-        plt.title(f'Heatmap of Visited Positions - Up to Episode {episode}')
-        plt.show()
 
 if __name__ == "__main__":
     env = MazeEnv(render_mode="human")
