@@ -1,21 +1,10 @@
-# RL-VU-2024
-Group 23
+# File overview
+1.mazeEnv.py - In this file we define the maze environment in a class with the outlined layout of the maze.
+2.utils.py - In this file we define all necessary functions for rendering the episodes and visualising the data about simulations.
+3.Q-learning.py - In this file we define the logic behind Q-learning agent behaviour, contained in one class "QLearningAgentModified" and include the script for testing the agent in a given maze.
+4.Reinforce.py - In this file we define the logic behind Reinforce agent behaviour, contained in one class "REINFORCEAgentOptimized", definition of softmax function and include  the script for testing the agent in a given maze.
 
 
 
-## Pytania do TA    
-**Q**: We want to implement Q learning and deep Q learning (maybe compare them?). Is this a good idea, or would focusing on one solution would be better? If so, which solution to focus on?
-**A**: We should implement one algorithm as the main thing, and then we can do another algorithm (compare the results, explain differences) for the bonus point. However, DQN and QL would not be a good comparison, as they are very similar.    
-    
-**Q** If we decide on writing a NN, can we use Keras?
-**A** Yeah there is no restrictions in terms of libraries.
-
-
-# TO-DO
-1. Implement Q-Learning - Wszyscy
-2. Environment Reward System
-3. Maze Generator - Stanisław
-4. Second Algortihm - Wszyscy
-
-5. Visualization 
-6. Report
+# Running the files
+For the overview of agents performance you can run the files Q-learning.py and Reinforce.py respectively. Both files contain a script at the end which 
